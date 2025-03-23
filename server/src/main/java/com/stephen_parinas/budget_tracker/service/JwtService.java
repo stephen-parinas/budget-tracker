@@ -2,12 +2,17 @@ package com.stephen_parinas.budget_tracker.service;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.security.Key;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.function.Function;
 
 @Service
@@ -19,6 +24,55 @@ public class JwtService {
     private long jwtExpiration;
 
     /**
+     * Generates a JWT token for the given user.
+     *
+     * @param userDetails The user details containing authentication information.
+     * @return The generated JWT token.
+     */
+    public String generateToken(UserDetails userDetails) {
+        return generateToken(new HashMap<>(), userDetails);
+    }
+
+    /**
+     * Generates a JWT token with additional claims for the given user.
+     *
+     * @param additionalClaims Additional claims to include in the JWT payload.
+     * @param userDetails The user details containing authentication information.
+     * @return The generated JWT token.
+     */
+    public String generateToken(Map<String, Object> additionalClaims, UserDetails userDetails) {
+        return Jwts.builder()
+                .setClaims(additionalClaims)
+                .setSubject(userDetails.getUsername())
+                .setIssuedAt(new Date(System.currentTimeMillis()))
+                .setExpiration(new Date(System.currentTimeMillis() + jwtExpiration))
+                .signWith(getSignInKey(), SignatureAlgorithm.HS256)
+                .compact();
+    }
+
+    /**
+     * Validates a JWT token against the provided user details.
+     *
+     * @param token The JWT token to validate.
+     * @param userDetails The user details to verify against.
+     * @return {@code true} if the token is valid, otherwise {@code false}.
+     */
+    public boolean isTokenValid(String token, UserDetails userDetails) {
+        final String username = extractUsername(token);
+        return (username.equals(userDetails.getUsername())) && !isTokenExpired(token);
+    }
+
+    /**
+     * Checks if a JWT token is expired.
+     *
+     * @param token The JWT token to check.
+     * @return {@code true} if the token has expired, otherwise {@code false}.
+     */
+    public boolean isTokenExpired(String token) {
+        return extractExpiration(token).before(new Date());
+    }
+
+    /**
      * Extract the username (subject) from the JWT token.
      *
      * @param token The JWT token.
@@ -26,6 +80,16 @@ public class JwtService {
      */
     public String extractUsername(String token) {
         return extractClaim(token, Claims::getSubject);
+    }
+
+    /**
+     * Extract the expiration date from the JWT token.
+     *
+     * @param token The JWT token.
+     * @return The expiration date of the token.
+     */
+    private Date extractExpiration(String token) {
+        return extractClaim(token, Claims::getExpiration);
     }
 
     /**
