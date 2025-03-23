@@ -15,6 +15,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
+/**
+ * A service class responsible for handling JWT token generation, validation, and extraction.
+ */
 @Service
 public class JwtService {
     @Value("${security.jwt.secret-key}")
@@ -37,7 +40,7 @@ public class JwtService {
      * Generates a JWT token with additional claims for the given user.
      *
      * @param additionalClaims Additional claims to include in the JWT payload.
-     * @param userDetails The user details containing authentication information.
+     * @param userDetails      The user details containing authentication information.
      * @return The generated JWT token.
      */
     public String generateToken(Map<String, Object> additionalClaims, UserDetails userDetails) {
@@ -53,7 +56,7 @@ public class JwtService {
     /**
      * Validates a JWT token against the provided user details.
      *
-     * @param token The JWT token to validate.
+     * @param token       The JWT token to validate.
      * @param userDetails The user details to verify against.
      * @return {@code true} if the token is valid, otherwise {@code false}.
      */
@@ -97,9 +100,9 @@ public class JwtService {
      * This method decodes the token and retrieves the claim based on the provided claims resolver function.
      * The resolver function defines how to extract the desired claim from the JWT's claims object.
      *
-     * @param token The JWT token containing the claims.
+     * @param token          The JWT token containing the claims.
      * @param claimsResolver A function that extracts the desired claims from the Claims object.
-     * @param <T> The type of the claim to be extracted.
+     * @param <T>            The type of the claim to be extracted.
      * @return The extracted claim of type T.
      */
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
