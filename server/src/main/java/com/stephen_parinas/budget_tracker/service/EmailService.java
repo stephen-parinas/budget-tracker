@@ -20,7 +20,7 @@ public class EmailService {
      *
      * @param to      The recipient's email address.
      * @param subject The subject of the email.
-     * @param body    The HTML body content of the email.
+     * @param body    The body content of the email.
      * @throws MessagingException If there is an issue creating or sending the email.
      */
     public void sendVerificationEmail(String to, String subject, String body) throws MessagingException {
@@ -29,6 +29,6 @@ public class EmailService {
 
         helper.setTo(to);
         helper.setSubject(subject);
-        helper.setText(body, true);
+        helper.setText(body);
     }
 }

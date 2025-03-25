@@ -26,6 +26,10 @@ public class JwtService {
     @Value("${security.jwt.expiration-time}")
     private long jwtExpiration;
 
+    public long getExpirationTime() {
+        return jwtExpiration;
+    }
+
     /**
      * Generates a JWT token for the given user.
      *
